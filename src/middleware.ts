@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
 
   // Define public asset and auth routes
   const isAuthRoute = path.startsWith('/login') || path.startsWith('/signup');
-  const isPublicRoute = path === '/' || path.startsWith('/_next') || path.startsWith('/favicon.ico');
+  const isPublicRoute = path === '/' || path.startsWith('/_next') || path.startsWith('/favicon.ico') || path.startsWith('/api/');
 
   // If user is not authenticated
   if (!user) {
