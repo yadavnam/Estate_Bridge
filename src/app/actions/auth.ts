@@ -16,6 +16,12 @@ export interface AuthResponse {
  */
 export async function sendOtp(phoneNumber: string, isSignup: boolean): Promise<AuthResponse> {
   try {
+    // Validate env vars early to give a clear error
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('[sendOtp] MISSING ENV VARS: NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set on server.');
+      return { success: false, error: 'Server configuration error. Please contact support.' };
+    }
+
     const adminSupabase = createAdminClient();
 
     // Fetch client IP address from request headers
@@ -50,6 +56,7 @@ export async function sendOtp(phoneNumber: string, isSignup: boolean): Promise<A
       .maybeSingle();
 
     if (dbError) {
+      console.error('[sendOtp] DB query failed on users table:', dbError.message, dbError.code);
       return { success: false, error: 'Database verification failed.' };
     }
 
