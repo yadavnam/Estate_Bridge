@@ -32,11 +32,13 @@ export async function sendOtp(phoneNumber: string, isSignup: boolean): Promise<A
       }
     );
 
+    // If the RPC itself errors (e.g. DB unavailable, function missing), log and
+    // allow the request to proceed rather than blocking legitimate users.
     if (limitError) {
-      return { success: false, error: 'Rate limit verification failed.' };
-    }
-
-    if (!limitAllowed) {
+      console.error('[RateLimit] RPC check_and_increment_otp_limit failed:', limitError.message);
+      // Fall through — do NOT return an error here; proceed to send OTP.
+    } else if (limitAllowed === false) {
+      // Explicit FALSE means the limit was actually exceeded
       return { success: false, error: 'OTP request blocked. Rate limit exceeded.' };
     }
 
